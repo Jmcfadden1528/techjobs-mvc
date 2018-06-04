@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.util.ArrayList;
-
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -28,18 +29,21 @@ public class SearchController {
 
     @RequestMapping(value = "results", method = RequestMethod.POST)
     public String results(Model model, @RequestParam String searchType, @RequestParam String searchTerm) {
-        ArrayList<String> jobs = JobData.findAll(searchType);
-        ArrayList<String> jobResults = new ArrayList<>();
-        for (String jobResult : jobs) {
-            if (jobResult.contains(searchTerm)) {
-                jobResults.add(jobResult);
-            }
+        if (searchType.equals("all")) {
+            ArrayList<HashMap<String, String>> jobs = JobData.findByValue(searchTerm);
+            model.addAttribute("columns", ListController.columnChoices);
+            model.addAttribute("jobs", jobs);
         }
-        model.addAttribute("columns", ListController.columnChoices);
-        model.addAttribute("searchType", searchType);
-        model.addAttribute("searchTerm", searchTerm);
-        model.addAttribute("jobResults", jobResults);
+        else {
+            ArrayList<HashMap<String, String>> jobs = JobData.findByColumnAndValue(searchType, searchTerm);
 
-        return "results";
-    }
+
+            model.addAttribute("columns", ListController.columnChoices);
+            model.addAttribute("jobs", jobs);
+        }
+
+            return "results";
+
+        }
+
 }
